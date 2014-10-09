@@ -1,0 +1,260 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<root>
+  <!-- 
+    Microsoft ResX Schema 
+    
+    Version 2.0
+    
+    The primary goals of this format is to allow a simple XML format 
+    that is mostly human readable. The generation and parsing of the 
+    various data types are done through the TypeConverter classes 
+    associated with the data types.
+    
+    Example:
+    
+    ... ado.net/XML headers & schema ...
+    <resheader name="resmimetype">text/microsoft-resx</resheader>
+    <resheader name="version">2.0</resheader>
+    <resheader name="reader">System.Resources.ResXResourceReader, System.Windows.Forms, ...</resheader>
+    <resheader name="writer">System.Resources.ResXResourceWriter, System.Windows.Forms, ...</resheader>
+    <data name="Name1"><value>this is my long string</value><comment>this is a comment</comment></data>
+    <data name="Color1" type="System.Drawing.Color, System.Drawing">Blue</data>
+    <data name="Bitmap1" mimetype="application/x-microsoft.net.object.binary.base64">
+        <value>[base64 mime encoded serialized .NET Framework object]</value>
+    </data>
+    <data name="Icon1" type="System.Drawing.Icon, System.Drawing" mimetype="application/x-microsoft.net.object.bytearray.base64">
+        <value>[base64 mime encoded string representing a byte array form of the .NET Framework object]</value>
+        <comment>This is a comment</comment>
+    </data>
+                
+    There are any number of "resheader" rows that contain simple 
+    name/value pairs.
+    
+    Each data row contains a name, and value. The row also contains a 
+    type or mimetype. Type corresponds to a .NET class that support 
+    text/value conversion through the TypeConverter architecture. 
+    Classes that don't support this are serialized and stored with the 
+    mimetype set.
+    
+    The mimetype is used for serialized objects, and tells the 
+    ResXResourceReader how to depersist the object. This is currently not 
+    extensible. For a given mimetype the value must be set accordingly:
+    
+    Note - application/x-microsoft.net.object.binary.base64 is the format 
+    that the ResXResourceWriter will generate, however the reader can 
+    read any of the formats listed below.
+    
+    mimetype: application/x-microsoft.net.object.binary.base64
+    value   : The object must be serialized with 
+            : System.Runtime.Serialization.Formatters.Binary.BinaryFormatter
+            : and then encoded with base64 encoding.
+    
+    mimetype: application/x-microsoft.net.object.soap.base64
+    value   : The object must be serialized with 
+            : System.Runtime.Serialization.Formatters.Soap.SoapFormatter
+            : and then encoded with base64 encoding.
+
+    mimetype: application/x-microsoft.net.object.bytearray.base64
+    value   : The object must be serialized into a byte array 
+            : using a System.ComponentModel.TypeConverter
+            : and then encoded with base64 encoding.
+    -->
+  <xsd:schema id="root" xmlns="" xmlns:xsd="http://www.w3.org/2001/XMLSchema" xmlns:msdata="urn:schemas-microsoft-com:xml-msdata">
+    <xsd:import namespace="http://www.w3.org/XML/1998/namespace" />
+    <xsd:element name="root" msdata:IsDataSet="true">
+      <xsd:complexType>
+        <xsd:choice maxOccurs="unbounded">
+          <xsd:element name="metadata">
+            <xsd:complexType>
+              <xsd:sequence>
+                <xsd:element name="value" type="xsd:string" minOccurs="0" />
+              </xsd:sequence>
+              <xsd:attribute name="name" use="required" type="xsd:string" />
+              <xsd:attribute name="type" type="xsd:string" />
+              <xsd:attribute name="mimetype" type="xsd:string" />
+              <xsd:attribute ref="xml:space" />
+            </xsd:complexType>
+          </xsd:element>
+          <xsd:element name="assembly">
+            <xsd:complexType>
+              <xsd:attribute name="alias" type="xsd:string" />
+              <xsd:attribute name="name" type="xsd:string" />
+            </xsd:complexType>
+          </xsd:element>
+          <xsd:element name="data">
+            <xsd:complexType>
+              <xsd:sequence>
+                <xsd:element name="value" type="xsd:string" minOccurs="0" msdata:Ordinal="1" />
+                <xsd:element name="comment" type="xsd:string" minOccurs="0" msdata:Ordinal="2" />
+              </xsd:sequence>
+              <xsd:attribute name="name" type="xsd:string" use="required" msdata:Ordinal="1" />
+              <xsd:attribute name="type" type="xsd:string" msdata:Ordinal="3" />
+              <xsd:attribute name="mimetype" type="xsd:string" msdata:Ordinal="4" />
+              <xsd:attribute ref="xml:space" />
+            </xsd:complexType>
+          </xsd:element>
+          <xsd:element name="resheader">
+            <xsd:complexType>
+              <xsd:sequence>
+                <xsd:element name="value" type="xsd:string" minOccurs="0" msdata:Ordinal="1" />
+              </xsd:sequence>
+              <xsd:attribute name="name" type="xsd:string" use="required" />
+            </xsd:complexType>
+          </xsd:element>
+        </xsd:choice>
+      </xsd:complexType>
+    </xsd:element>
+  </xsd:schema>
+  <resheader name="resmimetype">
+    <value>text/microsoft-resx</value>
+  </resheader>
+  <resheader name="version">
+    <value>2.0</value>
+  </resheader>
+  <resheader name="reader">
+    <value>System.Resources.ResXResourceReader, System.Windows.Forms, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b77a5c561934e089</value>
+  </resheader>
+  <resheader name="writer">
+    <value>System.Resources.ResXResourceWriter, System.Windows.Forms, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b77a5c561934e089</value>
+  </resheader>
+  <data name="exception_message_extension_dll_loading_error" xml:space="preserve">
+    <value>拡張 DLL 読み込み時に予期しない問題が発生しました。</value>
+  </data>
+  <data name="exception_message_illegal_parameter" xml:space="preserve">
+    <value>パラメータ（{0}）の指定に問題があります。</value>
+  </data>
+  <data name="exception_message_input_directory_not_found" xml:space="preserve">
+    <value>入力ディレクトリ（{0}）が存在しません。</value>
+  </data>
+  <data name="exception_message_invalid_extension_dll" xml:space="preserve">
+    <value>拡張DLL（{0}）に問題があります。</value>
+  </data>
+  <data name="exception_message_parameter_is_missing" xml:space="preserve">
+    <value>パラメータ（{0}）が不足しています。</value>
+  </data>
+  <data name="exception_message_resource_archiver_initialize_error" xml:space="preserve">
+    <value>アプリケーションアーカイバーの初期化時に予期しない問題が発生しました。</value>
+  </data>
+  <data name="usage" xml:space="preserve">
+    <value>使い方（標準）:
+    resxar
+        /in:入力ルートディレクトリ名
+        /out:出力ファイル名
+        [/checkTimestamp:タイムスタンプチェック可否(true or false, 省略時は true)]
+        [/encoding:テキストファイルの文字コード]
+        [/bitmap:Bitmap保存可否(true or false, 省略時は true)]
+
+    入力ディレクトリ配下の全てのファイルをリソースとして取り込み、
+    resx ファイル形式で出力ファイルに出力します。
+
+    リソースの取り込みルールは以下の通りです。
+
+    リソースの名前:
+        以下の構成で名前が決まります。
+         [拡張子_入力ルートディレクトリからの相対パス_ファイル名]
+        ただし「.」およびパス区切りは「_」で置換されます。
+        また、先頭が数字になる場合は接頭子として「_」が１文字加えられます。
+        これはリソースに ResXFileCodeGenerator カスタムジェネレータ
+        を適用する際に発生する問題を未然に防ぐための簡易措置です。
+
+    取り込み形式:
+        拡張子により以下のルールで形式が決まります。
+        .txt
+            文字列リソースとして取り込む。
+        .png, .bmp, .jpg, .jpeg, .gif, .tif, .tiff
+            画像リソースとして取り込む。
+            /bitmap:true もしくは指定を省略した場合
+                System.Drawing.Bitmap インスタンスとする。
+            /bitmap:false の場合
+                バイト配列として取り込む。
+        その他の拡張子
+            バイト配列として取り込む。
+
+パラメータ（標準）:
+    /in:入力ルートディレクトリ
+
+        格納リソース検索の基点となるルートディレクトリを指定します。
+        必須パラメータです。
+
+        サブディレクトリを含む全てのファイルが格納対象となります。
+        絶対パスおよび相対パスの指定が可能です。
+        相対パスは実行時ディレクトリからのパスと解釈されます。
+
+    /out:出力ファイル名
+
+        出力する Resx ファイルのファイル名を指定します。
+        必須パラメータです。
+
+        拡張子を省略した場合は .resx が自動で付きます。
+        絶対パスおよび相対パスの指定が可能です。
+        相対パスは実行時ディレクトリからのパスと解釈されます。
+
+    /checkTimestamp:タイムスタンプチェック可否
+
+        タイムスタンプチェックを行う場合は true を、
+        行わずに必ず上書き更新する場合は false を指定します。
+        標準のオプションです。
+        省略時は true であると解釈されます。
+
+        タイムスタンプチェックを行うことで不要と判断した際は
+        リソースファイルの再生成を抑止できます。
+        出力ファイルが既に存在する場合、
+        取り込み対象となる全リソースファイルのタイムスタンプと比較し
+        新しいリソースファイルが存在しない場合は取り込みを中断します。
+
+    /encoding:テキストファイルのエンコーディング
+
+        テキストファイルで使用している文字コードを指定します。
+        標準のオプションです。
+        省略時は UTF-8 であると解釈されます。
+
+        指定可能なエンコーディング名は
+        System.Text.Encoding.GetEncoding メソッドの仕様に従います。
+
+    /bitmap:Bitmap保存可否
+
+        画像リソースを System.Drawing.Bitmap 形式で取り込む場合は true を、
+        バイト配列で取り込む場合は false を指定します。
+        標準のオプションです。
+        省略時は true であると解釈されます。
+
+使い方（拡張機能利用時）:
+    resxar
+        /in:入力ルートディレクトリ
+        /out:出力ファイル名
+        [/checkTimestamp:タイムスタンプチェック可否(true or false, 省略時は true)]
+        /extensionDll:拡張DLLパス
+        /extensionResourceArchiver:リソースアーカイバークラスの完全修飾名
+        /anyOption1:リソースアーカイバークラスの仕様に従った任意のオプション
+        /anyOption2:リソースアーカイバークラスの仕様に従った任意のオプション
+        ...
+
+    入力ディレクトリ配下の全てのファイルをリソースとして取り込み、
+    resx ファイル形式で出力ファイルに出力します。
+
+    リソースの取り込みルールはリソースアーカイバークラスの仕様に従います。
+
+パラメータ（拡張機能利用時）:
+    /extensionDll:拡張DLLパス
+
+        拡張DLLのパスを指定します。
+        拡張機能利用時の必須パラメータです。
+
+        絶対パスおよび相対パスの指定が可能です。
+        相対パスは実行時ディレクトリからのパスと解釈されます。
+
+    /extensionResourceArchiver:リソースアーカイバークラスの完全修飾名
+
+        拡張機能を実装するリソースアーカイバークラスの完全修飾名を指定します。
+        拡張機能利用時の必須パラメータです。
+
+        以下の条件を全て満たすクラスを指定してください。
+
+        ・resxar 本体もしくは extensionDll で指定した DLL が保持するクラス。
+        ・resxar.IResourceArchiver インターフェイスを実装した具象クラス。
+        ・規定の公開コンストラクタを持つクラス。</value>
+  </data>
+  <data name="usage_resource_archiver_header" xml:space="preserve">
+    <value>指定したリソースアーカイバーの説明:</value>
+  </data>
+</root>

@@ -5,13 +5,25 @@ using System.IO;
 using System.Resources;
 using System.Text;
 using System.Text.RegularExpressions;
+using Mono.Options;
 
 namespace Resxar
 {
     public class DirectoryResourceArchiver : IResourceArchiver
     {
-        private Encoding m_encoding = Encoding.UTF8;
-        private bool m_useBitmap = false;
+        private Encoding Encoding { get; set; } = Encoding.UTF8;
+        private bool UseBitmap { get; set; } = true;
+
+        public void AddOptionSet(OptionSet options)
+        {
+            options.Add("encoding=", "", v => Encoding = Encoding.GetEncoding(v));
+            options.Add("bitmap=", "", v => UseBitmap = Boolean.Parse(v));
+        }
+
+        public bool ValidateOptions()
+        {
+            return true;
+        }
 
         public bool IsTarget(string path)
         {
@@ -82,7 +94,7 @@ namespace Resxar
             }
             else if (Either(extension, "png", "bmp", "jpg", "jpeg", "gif", "tif", "tiff"))
             {
-                if (m_useBitmap)
+                if (UseBitmap)
                 {
                     Bitmap resource = new Bitmap(resourceFullPath);
                     writer.AddResource(resourceName, resource);
@@ -102,7 +114,7 @@ namespace Resxar
 
         private string GetTextFromFile(string filename)
         {
-            return m_encoding.GetString(GetBytesFromFile(filename));
+            return Encoding.GetString(GetBytesFromFile(filename));
         }
 
         private static string GetResourceName(string extension, string path, string filenameWithoutExtension)

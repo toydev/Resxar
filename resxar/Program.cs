@@ -8,67 +8,68 @@ namespace Resxar
 {
     class Program
     {
+        private static ResourceArchiverManager ResourceArchiverManager { get; set; }
+            = new ResourceArchiverManager();
+
         static void Main(string[] args)
         {
-            IDictionary<string, string> parameters = new Dictionary<string, string>();
+            ResourceArchiverManager.Add(new TextResourceArchiver());
+            ResourceArchiverManager.Add(new DirectoryResourceArchiver());
+
+            string inputDirectory = null;
+            string outputDirectory = null;
 
             OptionSet options = new OptionSet()
             {
-                { "i|in=", "", v => parameters["in"] = v },
-                { "o|out=", "", v => parameters["out"] = v },
+                { "i|in=", "", v => inputDirectory = v },
+                { "o|out=", "", v => outputDirectory = v },
             };
+
+            ResourceArchiverManager.AddOptionSet(options);
 
             IList<string> extra;
             try
             {
                 extra = options.Parse(args);
 
-                Run(parameters);
+                if (0 < extra.Count
+                    || inputDirectory == null
+                    || outputDirectory == null
+                    || !ResourceArchiverManager.ValidateOptions())
+                {
+                    ShowUsage();
+                    return;
+                }
+
+                Run(inputDirectory, outputDirectory);
             }
-            catch (OptionException e)
+            catch (OptionException)
             {
-                // output some error message
-                Console.Write("greet: ");
-                Console.WriteLine(e.Message);
-                Console.WriteLine("Try `greet --help' for more information.");
+                ShowUsage();
             }
             catch (Exception e)
             {
                 Console.Error.Write(e);
+                ShowUsage();
             }
         }
 
-        private static IList<IResourceArchiver> Archivers { get; set; } = new List<IResourceArchiver>();
-
-        static void Run(IDictionary<string, string> parameters)
+        static void Run(string inputDirectory, string outputDirectory)
         {
-            string inputDirectory = parameters["in"];
-            string outputDirectory = parameters["out"];
-
-            Archivers.Add(new TextResourceArchiver());
-            Archivers.Add(new DirectoryResourceArchiver());
-
-            foreach (string targetFilename in Directory.GetFiles(inputDirectory))
+            foreach (string targetFile in Directory.GetFiles(inputDirectory))
             {
-                ArchiveResx(targetFilename, outputDirectory);
+                ResourceArchiverManager.ArchiveResx(targetFile, outputDirectory);
             }
 
             foreach (string targetDirectory in Directory.GetDirectories(inputDirectory))
             {
-                ArchiveResx(targetDirectory, outputDirectory);
+                ResourceArchiverManager.ArchiveResx(targetDirectory, outputDirectory);
             }
         }
 
-        static void ArchiveResx(string targetPath, string outputDirectory)
+        static void ShowUsage()
         {
-            foreach (IResourceArchiver archiver in Archivers)
-            {
-                if (archiver.IsTarget(targetPath))
-                {
-                    archiver.Archive(targetPath, outputDirectory);
-                    return;
-                }
-            }
+
         }
     }
 }

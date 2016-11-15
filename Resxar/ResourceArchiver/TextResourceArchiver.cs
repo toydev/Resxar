@@ -1,11 +1,22 @@
-﻿using System.IO;
+﻿using System;
+using System.IO;
 using System.Resources;
 using System.Text.RegularExpressions;
+using Mono.Options;
 
 namespace Resxar
 {
     public class TextResourceArchiver : IResourceArchiver
     {
+        public void AddOptionSet(OptionSet options)
+        {
+        }
+
+        public bool ValidateOptions()
+        {
+            return true;
+        }
+
         public bool IsTarget(string path)
         {
             return File.Exists(path) && Path.GetExtension(path) == ".txt";
@@ -29,6 +40,8 @@ namespace Resxar
 
         public void Archive(string targetPath, string outputDirectory)
         {
+            AppLog.Info(GetType(), "Archive ... {0}", Path.GetFileName(targetPath));
+
             string outputFilepath = OutputFilepath(targetPath, outputDirectory);
             using (StreamReader reader = new StreamReader(new FileStream(targetPath, FileMode.Open)))
             using (ResXResourceWriterManager writerManager = new ResXResourceWriterManager(outputFilepath))

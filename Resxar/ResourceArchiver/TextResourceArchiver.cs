@@ -32,7 +32,7 @@ namespace Resxar
         private static Regex COMMENT_REGEX
             = new Regex(@"^\s*#");
         private static Regex ONE_LINE_TEXT_REGEX
-            = new Regex(@"^\s*([a-zA-Z_][0-9a-zA-Z_]*)\s*(/\s*([a-zA-Z_][0-9a-zA-Z_]*))?\s*=(.+)$");
+            = new Regex(@"^\s*([a-zA-Z_][0-9a-zA-Z_]*)\s*(/\s*([a-zA-Z_][0-9a-zA-Z_]*))?\s*=(.*)$");
         private static Regex MULTI_LINE_TEXT_REGEX
             = new Regex(@"^\s*([a-zA-Z_][0-9a-zA-Z_]*)\s*(/\s*([a-zA-Z_][0-9a-zA-Z_]*))?\s*<<\s*([a-zA-Z_][0-9a-zA-Z_]*)\s*$");
         private static Regex DELIMITER_REGEX

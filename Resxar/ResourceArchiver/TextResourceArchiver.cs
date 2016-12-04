@@ -1,5 +1,4 @@
-﻿using System;
-using System.IO;
+﻿using System.IO;
 using System.Resources;
 using System.Text.RegularExpressions;
 using Mono.Options;
@@ -32,9 +31,9 @@ namespace Resxar
         private static Regex COMMENT_REGEX
             = new Regex(@"^\s*#");
         private static Regex ONE_LINE_TEXT_REGEX
-            = new Regex(@"^\s*([a-zA-Z_][0-9a-zA-Z_]*)\s*(/\s*([a-zA-Z_][0-9a-zA-Z_]*))?\s*=(.*)$");
+            = new Regex(@"^\s*([a-zA-Z_][0-9a-zA-Z_]*)\s*(\.\s*([a-zA-Z_][0-9a-zA-Z\-_]*))?\s*=(.*)$");
         private static Regex MULTI_LINE_TEXT_REGEX
-            = new Regex(@"^\s*([a-zA-Z_][0-9a-zA-Z_]*)\s*(/\s*([a-zA-Z_][0-9a-zA-Z_]*))?\s*<<\s*([a-zA-Z_][0-9a-zA-Z_]*)\s*$");
+            = new Regex(@"^\s*([a-zA-Z_][0-9a-zA-Z_]*)\s*(\.\s*([a-zA-Z_][0-9a-zA-Z\-_]*))?\s*<<\s*([a-zA-Z_][0-9a-zA-Z_]*)\s*$");
         private static Regex DELIMITER_REGEX
             = new Regex(@"^\s*([a-zA-Z_][0-9a-zA-Z_]*)\s*$");
 

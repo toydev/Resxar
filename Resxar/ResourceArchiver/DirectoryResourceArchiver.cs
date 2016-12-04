@@ -34,7 +34,7 @@ namespace Resxar
         {
             return Path.Combine(
                 outputDirectory,
-                Path.GetFileNameWithoutExtension(targetPath) + ".resx");
+                Path.GetFileName(targetPath) + ".resx");
         }
 
         public void Archive(string targetPath, string outputDirectory)

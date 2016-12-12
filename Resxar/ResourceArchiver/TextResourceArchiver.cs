@@ -1,5 +1,7 @@
-﻿using System.IO;
+﻿using System;
+using System.IO;
 using System.Resources;
+using System.Text;
 using System.Text.RegularExpressions;
 using Mono.Options;
 
@@ -49,7 +51,8 @@ namespace Resxar
                 string multilineName = null;
                 string multilineLocale = null;
                 string multilineDelimiter = null;
-                string multilineValue = null;
+                int multilineCount = 0;
+                StringBuilder multilineValue = null;
                 while ((line = reader.ReadLine()) != null)
                 {
                     // コメント
@@ -77,7 +80,8 @@ namespace Resxar
                             multilineName = multiLineTextMatch.Groups[1].Value;
                             multilineLocale = multiLineTextMatch.Groups[3].Value;
                             multilineDelimiter = multiLineTextMatch.Groups[4].Value;
-                            multilineValue = "";
+                            multilineCount = 0;
+                            multilineValue = new StringBuilder();
                             continue;
                         }
                     }
@@ -90,17 +94,23 @@ namespace Resxar
                             if (multilineDelimiter == delimiter)
                             {
                                 ResXResourceWriter writer = writerManager.GetWriter(multilineLocale);
-                                writer.AddResource(multilineName, multilineValue);
+                                writer.AddResource(multilineName, multilineValue.ToString());
 
                                 multilineName = null;
                                 multilineLocale = null;
                                 multilineDelimiter = null;
+                                multilineCount = 0;
                                 multilineValue = null;
                                 continue;
                             }
-
-                            multilineValue = line;
                         }
+
+                        if (0 < multilineCount)
+                        {
+                            multilineValue.Append(Environment.NewLine);
+                        }
+                        multilineValue.Append(line);
+                        ++multilineCount;
                     }
                 }
             }

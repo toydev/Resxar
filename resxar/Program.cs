@@ -3,6 +3,7 @@ using System.Collections.Generic;
 using System.IO;
 using System.Reflection;
 
+using log4net;
 using log4net.Config;
 
 using Mono.Options;
@@ -11,6 +12,8 @@ namespace Resxar
 {
     class Program
     {
+        private static ILog Logger { get; set; }
+
         private static ResourceArchiverManager ResourceArchiverManager { get; set; }
             = new ResourceArchiverManager();
 
@@ -24,6 +27,7 @@ namespace Resxar
             {
                 XmlConfigurator.Configure(configStream);
             }
+            Logger = LogManager.GetLogger(typeof(Program));
 
             ResourceArchiverManager.Add(new TextResourceArchiver());
             ResourceArchiverManager.Add(new DirectoryResourceArchiver());
@@ -56,6 +60,7 @@ namespace Resxar
             }
             catch (Exception e)
             {
+                Logger.Error("Application Error", e);
                 Console.Write("{0}: ", ApplicationName);
                 Console.WriteLine(e.Message);
                 Console.WriteLine("Try `{0} --help' for more information.", ApplicationName);
@@ -72,7 +77,7 @@ namespace Resxar
 
             foreach (string targetDirectory in Directory.GetDirectories(inputDirectory))
             {
-                if (targetDirectory != DEFAULT_OUTPUT_DIRECTORY)
+                if (Path.GetFileName(targetDirectory) != DEFAULT_OUTPUT_DIRECTORY)
                 {
                     ResourceArchiverManager.ArchiveResx(targetDirectory, outputDirectory);
                 }

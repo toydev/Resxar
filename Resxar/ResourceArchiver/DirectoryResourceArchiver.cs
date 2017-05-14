@@ -161,7 +161,7 @@ namespace Resxar
         private static byte[] GetBytesFromFile(string filename)
         {
             List<byte> result = new List<byte>();
-            using (Stream stream = new FileStream(filename, FileMode.Open))
+            using (Stream stream = new FileStream(filename, FileMode.Open, FileAccess.Read))
             {
                 int bufferSize = 1024;
                 byte[] buffer = new byte[1024];

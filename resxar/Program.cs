@@ -1,6 +1,9 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.IO;
+using System.Reflection;
+
+using log4net.Config;
 
 using Mono.Options;
 
@@ -13,16 +16,23 @@ namespace Resxar
 
         static void Main(string[] args)
         {
+            Assembly assembly = Assembly.GetExecutingAssembly();
+            XmlConfigurator.Configure(
+                assembly.GetManifestResourceStream("resxar.Config.log.xml")
+            );
+
             ResourceArchiverManager.Add(new TextResourceArchiver());
             ResourceArchiverManager.Add(new DirectoryResourceArchiver());
 
             string inputDirectory = null;
             string outputDirectory = null;
+            bool help = false;
 
             OptionSet options = new OptionSet()
             {
-                { "i|in=", "", v => inputDirectory = v },
-                { "o|out=", "", v => outputDirectory = v },
+                { "i|in=", "Resource input directory path.", v => inputDirectory = v },
+                { "o|out=", "*.resx files output directory path.", v => outputDirectory = v },
+                { "h|help", "Show help and exit.", v => help = v != null },
             };
 
             ResourceArchiverManager.AddOptionSet(options);
@@ -32,12 +42,18 @@ namespace Resxar
             {
                 extra = options.Parse(args);
 
+                if (help)
+                {
+                    Usage(options);
+                    return;
+                }
+
                 if (0 < extra.Count
                     || inputDirectory == null
                     || outputDirectory == null
                     || !ResourceArchiverManager.ValidateOptions())
                 {
-                    ShowUsage();
+                    Usage(options);
                     return;
                 }
 
@@ -45,12 +61,12 @@ namespace Resxar
             }
             catch (OptionException)
             {
-                ShowUsage();
+                Usage(options);
             }
             catch (Exception e)
             {
                 Console.Error.Write(e);
-                ShowUsage();
+                Usage(options);
             }
         }
 
@@ -67,9 +83,22 @@ namespace Resxar
             }
         }
 
-        static void ShowUsage()
+        static string ApplicationName
         {
+            get
+            {
+                return Path.GetFileNameWithoutExtension(Assembly.GetExecutingAssembly().Location);
+            }
+        }
 
+        static void Usage(OptionSet options)
+        {
+            Console.WriteLine("Usage: {0} [OPTIONS]+", ApplicationName);
+            Console.WriteLine("Application Description Here.");
+            Console.WriteLine();
+
+            Console.WriteLine("Options:");
+            options.WriteOptionDescriptions(Console.Out);
         }
     }
 }

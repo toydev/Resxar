@@ -3,12 +3,17 @@ using System.IO;
 using System.Resources;
 using System.Text;
 using System.Text.RegularExpressions;
+
+using log4net;
+
 using Mono.Options;
 
 namespace Resxar
 {
     public class TextResourceArchiver : IResourceArchiver
     {
+        private ILog logger = LogManager.GetLogger(typeof(TextResourceArchiver));
+
         public void AddOptionSet(OptionSet options)
         {
         }
@@ -41,7 +46,7 @@ namespace Resxar
 
         public void Archive(string targetPath, string outputDirectory)
         {
-            AppLog.Info(GetType(), "Archive ... {0}", Path.GetFileName(targetPath));
+            logger.Info(string.Format("Archive ... {0}", Path.GetFileName(targetPath)));
 
             string outputFilepath = OutputFilepath(targetPath, outputDirectory);
             using (StreamReader reader = new StreamReader(new FileStream(targetPath, FileMode.Open)))

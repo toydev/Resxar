@@ -53,17 +53,11 @@
     <Reference Include="System.Xml" />
   </ItemGroup>
   <ItemGroup>
-    <Compile Include="Properties\Log.Designer.cs">
-      <AutoGen>True</AutoGen>
-      <DesignTime>True</DesignTime>
-      <DependentUpon>Log.resx</DependentUpon>
-    </Compile>
     <Compile Include="ResourceArchiver\DirectoryResourceArchiver.cs" />
     <Compile Include="IResourceArchiver.cs" />
     <Compile Include="Program.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
     <Compile Include="ResourceArchiver\TextResourceArchiver.cs" />
-    <Compile Include="Utils\AppLog.cs" />
     <Compile Include="Utils\ResourceArchiverManager.cs" />
     <Compile Include="Utils\ResXResourceWriterManager.cs" />
   </ItemGroup>
@@ -72,13 +66,7 @@
     <None Include="packages.config" />
   </ItemGroup>
   <ItemGroup>
-    <EmbeddedResource Include="Properties\Log.resx">
-      <Generator>ResXFileCodeGenerator</Generator>
-      <LastGenOutput>Log.Designer.cs</LastGenOutput>
-    </EmbeddedResource>
-  </ItemGroup>
-  <ItemGroup>
-    <Content Include="Assets\Log\log.xml" />
+    <Content Include="Config\log.xml" />
   </ItemGroup>
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
   <PropertyGroup>

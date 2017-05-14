@@ -5,12 +5,17 @@ using System.IO;
 using System.Resources;
 using System.Text;
 using System.Text.RegularExpressions;
+
+using log4net;
+
 using Mono.Options;
 
 namespace Resxar
 {
     public class DirectoryResourceArchiver : IResourceArchiver
     {
+        private ILog logger = LogManager.GetLogger(typeof(DirectoryResourceArchiver));
+
         private Encoding Encoding { get; set; } = Encoding.UTF8;
         private bool UseBitmap { get; set; } = true;
 

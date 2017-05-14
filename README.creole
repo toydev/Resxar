@@ -92,7 +92,7 @@ resx 内のリソース名は以下の命名規則に従って決められます
 
 ビルド済みリリースは以下のページから入手してください。
 
- * [[https://github.com/toydev/Resxar/releases/latest|リリース|]]
+ * [[https://github.com/toydev/Resxar/releases/latest|リリース]]
 
 インストールは zip ファイルの中身をパスの通ったディレクトリに解凍し配置するだけです。
 
@@ -139,7 +139,7 @@ bitmap.EndInit();
 System.Drawing.Bitmap bitmap = Resource.png_sub1_sub2_bitmap1;
 }}}
 
-ResXFileCodeGenerator カスタムツールを使わず [[http://msdn.microsoft.com/ja-jp/library/system.resources.resourcemanager.aspx|System.Resources.ResourceManager|]] クラスを使い情報にアクセスしてももちろん大丈夫です。
+ResXFileCodeGenerator カスタムツールを使わず [[http://msdn.microsoft.com/ja-jp/library/system.resources.resourcemanager.aspx|System.Resources.ResourceManager]] クラスを使い情報にアクセスしてももちろん大丈夫です。
 
 
 

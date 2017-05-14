@@ -24,14 +24,14 @@ namespace Resxar
             ResourceArchiverManager.Add(new TextResourceArchiver());
             ResourceArchiverManager.Add(new DirectoryResourceArchiver());
 
-            string inputDirectory = null;
-            string outputDirectory = null;
+            string inputDirectory = ".";
+            string outputDirectory = "resx";
             bool help = false;
 
             OptionSet options = new OptionSet()
             {
-                { "i|in=", "Resource input directory path.", v => inputDirectory = v },
-                { "o|out=", "*.resx files output directory path.", v => outputDirectory = v },
+                { "i|in=", "Resource input directory path. The default is '.'.", v => inputDirectory = v },
+                { "o|out=", "*.resx files output directory path. The default is 'resx'.", v => outputDirectory = v },
                 { "h|help", "Show help and exit.", v => help = v != null },
             };
 
@@ -50,8 +50,7 @@ namespace Resxar
 
                 if (0 < extra.Count
                     || inputDirectory == null
-                    || outputDirectory == null
-                    || !ResourceArchiverManager.ValidateOptions())
+                    || outputDirectory == null)
                 {
                     Usage(options);
                     return;

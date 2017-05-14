@@ -18,11 +18,6 @@ namespace Resxar
         {
         }
 
-        public bool ValidateOptions()
-        {
-            return true;
-        }
-
         public bool IsTarget(string path)
         {
             return File.Exists(path) && Path.GetExtension(path) == ".txt";

@@ -21,13 +21,8 @@ namespace Resxar
 
         public void AddOptionSet(OptionSet options)
         {
-            options.Add("encoding=", "Text file encoding.", v => Encoding = Encoding.GetEncoding(v));
-            options.Add("bitmap=", "Writes the image as a bitmap.", v => UseBitmap = v != null);
-        }
-
-        public bool ValidateOptions()
-        {
-            return true;
+            options.Add("encoding=", "Text file encoding. The default is 'UTF-8'.", v => Encoding = Encoding.GetEncoding(v));
+            options.Add("bitmap=", "Writes the image as a bitmap. The default is false.", v => UseBitmap = v != null);
         }
 
         public bool IsTarget(string path)

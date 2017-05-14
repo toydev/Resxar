@@ -21,19 +21,6 @@ namespace Resxar
             }
         }
 
-        public bool ValidateOptions()
-        {
-            foreach (IResourceArchiver archiver in Archivers)
-            {
-                if (!archiver.ValidateOptions())
-                {
-                    return false;
-                }
-            }
-
-            return true;
-        }
-
         public void ArchiveResx(string targetPath, string outputDirectory)
         {
             foreach (IResourceArchiver archiver in Archivers)

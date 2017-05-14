@@ -1,11 +1,4 @@
-﻿// Resx Archiver
-// https://github.com/toydev/Resxar
-//
-// Copyright (C) 2014 toydev All Rights Reserved.
-//
-// This software is released under Microsoft Public License(Ms-PL).
-
-using System;
+﻿using System;
 using System.Collections.Generic;
 using System.Drawing;
 using System.IO;
@@ -13,43 +6,75 @@ using System.Resources;
 using System.Text;
 using System.Text.RegularExpressions;
 
-using resxar.Extension.Interface;
+using log4net;
 
-namespace resxar.Extension.Standard
+using Mono.Options;
+
+namespace Resxar
 {
-    class StandardResourceArchiver : IResourceArchiver
+    public class DirectoryResourceArchiver : IResourceArchiver
     {
+        private ILog logger = LogManager.GetLogger(typeof(DirectoryResourceArchiver));
 
-        private Encoding m_encoding;
-        private bool m_useBitmap;
+        private Encoding Encoding { get; set; } = Encoding.UTF8;
+        private bool UseBitmap { get; set; } = false;
 
-        public event ResourceArchivedEventHandler ResourceArchived;
-        public event ResourceArchivedEventHandler ResourceArchiveSkipped;
-
-        public string Usage()
+        public void AddOptionSet(OptionSet options)
         {
-            return Resources.StandardResourceArchiverMessage.usage;
+            options.Add("encoding=", "Text file encoding. The default is 'UTF-8'.", v => Encoding = Encoding.GetEncoding(v));
+            options.Add("bitmap=", "Writes the image as a bitmap. The default is false.", v => UseBitmap = v != null);
         }
 
-        public void SetParameters(IDictionary<string, string> parameters)
+        public bool IsTarget(string path)
         {
-            if (parameters.ContainsKey("encoding"))
+            return Directory.Exists(path);
+        }
+
+        public string OutputFilepath(string targetPath, string outputDirectory)
+        {
+            return Path.Combine(
+                outputDirectory,
+                Path.GetFileName(targetPath) + ".resx");
+        }
+
+        public void Archive(string targetPath, string outputDirectory)
+        {
+            string outputFilepath = OutputFilepath(targetPath, outputDirectory);
+            IList<string> targetFilepaths = GetTargetFilepaths(targetPath);
+            if (CheckTimestamp(targetFilepaths, outputFilepath))
             {
-                m_encoding = Encoding.GetEncoding(parameters["encoding"]);
+                Uri rootDirectory = new Uri(Path.GetFullPath(targetPath) + "/");
+                using (ResXResourceWriter writer = new ResXResourceWriter(
+                    new FileStream(outputFilepath, FileMode.Create)))
+                {
+                    foreach (string targetFilename in targetFilepaths)
+                    {
+                        Uri relativeUrl = rootDirectory.MakeRelativeUri(new Uri(targetFilename));
+                        AddResource(writer, targetFilename, relativeUrl.ToString());
+                    }
+                }
             }
-            else
+        }
+
+        public bool CheckTimestamp(IList<string> targetFilepaths, string outputFilepath)
+        {
+            if (!File.Exists(outputFilepath))
             {
-                m_encoding = Encoding.UTF8;
+                return true;
             }
 
-            if (parameters.ContainsKey("bitmap"))
+            DateTime destinationFileTimestamp = File.GetLastWriteTime(outputFilepath);
+
+            foreach (string targetFilepath in targetFilepaths)
             {
-                m_useBitmap = Boolean.Parse(parameters["bitmap"]);
+                DateTime targetFileTimestamp = File.GetLastWriteTime(targetFilepath);
+                if (destinationFileTimestamp < targetFileTimestamp)
+                {
+                    return true;
+                }
             }
-            else
-            {
-                m_useBitmap = true;
-            }
+
+            return false;
         }
 
         public void AddResource(ResXResourceWriter writer, string resourceFullPath, string resourceRelativePath)
@@ -66,54 +91,30 @@ namespace resxar.Extension.Standard
             {
                 string resource = GetTextFromFile(resourceFullPath);
                 writer.AddResource(resourceName, resource);
-                ResourceArchived.Invoke(this,
-                    new ResourceArchivedEventArgs(
-                        resourceFullPath,
-                        resourceName,
-                        String.Format("type=string, chars={0}, encoding={1}", resource.Length, m_encoding.WebName)
-                        ));
             }
             else if (Either(extension, "png", "bmp", "jpg", "jpeg", "gif", "tif", "tiff"))
             {
-                if (m_useBitmap)
+                if (UseBitmap)
                 {
                     Bitmap resource = new Bitmap(resourceFullPath);
                     writer.AddResource(resourceName, resource);
-                    ResourceArchived.Invoke(this,
-                        new ResourceArchivedEventArgs(
-                            resourceFullPath,
-                            resourceName,
-                            String.Format("type=Bitmap, width={0}, height={1}", resource.Width, resource.Height)
-                            ));
                 }
                 else
                 {
                     byte[] resource = GetBytesFromFile(resourceFullPath);
                     writer.AddResource(resourceName, resource);
-                    ResourceArchived.Invoke(this,
-                        new ResourceArchivedEventArgs(
-                            resourceFullPath,
-                            resourceName,
-                            String.Format("type=byte[], byte={0}", resource.Length)
-                            ));
                 }
             }
             else
             {
                 byte[] resource = GetBytesFromFile(resourceFullPath);
                 writer.AddResource(resourceName, resource);
-                ResourceArchived.Invoke(this,
-                    new ResourceArchivedEventArgs(
-                        resourceFullPath,
-                        resourceName,
-                        String.Format("type=byte[], byte={0}", resource.Length)
-                        ));
             }
         }
 
         private string GetTextFromFile(string filename)
         {
-            return m_encoding.GetString(GetBytesFromFile(filename));
+            return Encoding.GetString(GetBytesFromFile(filename));
         }
 
         private static string GetResourceName(string extension, string path, string filenameWithoutExtension)
@@ -160,7 +161,7 @@ namespace resxar.Extension.Standard
         private static byte[] GetBytesFromFile(string filename)
         {
             List<byte> result = new List<byte>();
-            using (Stream stream = new FileStream(filename, FileMode.Open))
+            using (Stream stream = new FileStream(filename, FileMode.Open, FileAccess.Read))
             {
                 int bufferSize = 1024;
                 byte[] buffer = new byte[1024];
@@ -191,5 +192,29 @@ namespace resxar.Extension.Standard
             return result.ToArray();
         }
 
+        private IList<string> GetTargetFilepaths(string inputDirectory)
+        {
+            IList<string> result = new List<string>();
+
+            Stack<string> targetDirectories = new Stack<string>();
+            targetDirectories.Push(Path.GetFullPath(inputDirectory));
+
+            while (0 < targetDirectories.Count)
+            {
+                string targetDirectory = targetDirectories.Pop();
+
+                foreach (string targetFilepath in Directory.GetFiles(targetDirectory))
+                {
+                    result.Add(targetFilepath);
+                }
+
+                foreach (string subdirectory in Directory.GetDirectories(targetDirectory))
+                {
+                    targetDirectories.Push(subdirectory);
+                }
+            }
+
+            return result;
+        }
     }
 }

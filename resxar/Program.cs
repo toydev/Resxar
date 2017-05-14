@@ -1,314 +1,122 @@
-﻿// Resx Archiver
-// https://github.com/toydev/Resxar
-//
-// Copyright (C) 2014 toydev All Rights Reserved.
-//
-// This software is released under Microsoft Public License(Ms-PL).
-
-using System;
-using System.Collections;
+﻿using System;
 using System.Collections.Generic;
-using System.Reflection;
 using System.IO;
-using System.Resources;
-using System.Text;
-using System.Text.RegularExpressions;
+using System.Reflection;
 
-using resxar.Extension.Interface;
-using resxar.Extension.Standard;
+using log4net;
+using log4net.Config;
 
-namespace resxar
+using Mono.Options;
+
+namespace Resxar
 {
     class Program
     {
+        private static ILog Logger { get; set; }
 
-        public const int RETURNCODE_SUCCESSFUL = 0;
-        public const int RETURNCODE_OUTPUT_USAGE = 1;
-        public const int RETURNCODE_ARGUMENT_ERROR = 2;
-        public const int RETURNCODE_APPLICATION_ERROR = 3;
-        public const int RETURNCODE_UNKNOWN_ERROR = 255;
-        
-        private const string RESX_EXTENSION = "resx";
+        private static ResourceArchiverManager ResourceArchiverManager { get; set; }
+            = new ResourceArchiverManager();
 
-        private static string DEFAULT_RESOURCE_ARCHIVER = typeof(StandardResourceArchiver).FullName;
+        const string DEFAULT_INPUT_DIRECTORY = ".";
+        const string DEFAULT_OUTPUT_DIRECTORY = "resx_output";
 
-        private static void OutputUsage(IResourceArchiver resourceArchiver)
+        static int Main(string[] args)
         {
-            Console.WriteLine("{0} {1}", App.AssemblyTitle, App.Version);
-            Console.WriteLine(App.AssemblyCopyright);
-            Console.WriteLine();
-            Console.WriteLine(Resources.ProgramMessage.usage);
-            if (resourceArchiver != null && !(resourceArchiver is StandardResourceArchiver))
+            Assembly assembly = Assembly.GetExecutingAssembly();
+            using (Stream configStream = assembly.GetManifestResourceStream("Resxar.Config.log.xml"))
             {
-                Console.WriteLine();
-                Console.WriteLine(Resources.ProgramMessage.usage_resource_archiver_header);
-                Console.WriteLine(resourceArchiver.Usage());
+                XmlConfigurator.Configure(configStream);
             }
-        }
+            Logger = LogManager.GetLogger(typeof(Program));
 
-        private static void OutputError(Exception e)
-        {
-            Console.Error.WriteLine(GetExceptionMessage(e));
-        }
+            ResourceArchiverManager.Add(new TextResourceArchiver());
+            ResourceArchiverManager.Add(new DirectoryResourceArchiver());
 
-        private static int Main(string[] args)
-        {
-            IResourceArchiver resourceArchiver = null;
+            string inputDirectory = DEFAULT_INPUT_DIRECTORY;
+            string outputDirectory = DEFAULT_OUTPUT_DIRECTORY;
+            bool help = false;
+
+            OptionSet options = new OptionSet()
+            {
+                { "i|in=", string.Format("Resource input directory path. The default is '{0}'.", DEFAULT_INPUT_DIRECTORY), v => inputDirectory = v },
+                { "o|out=", string.Format("*.resx files output directory path. The default is '{0}'.", DEFAULT_OUTPUT_DIRECTORY), v => outputDirectory = v },
+                { "h|help", "Show help and exit.", v => help = v != null },
+            };
+
+            ResourceArchiverManager.AddOptionSet(options);
+
+            IList<string> extra;
             try
             {
-                IDictionary<string, string> parameters = GetParameters(args);
+                extra = options.Parse(args);
 
-                if (parameters.Count == 0)
+                if (help)
                 {
-                    OutputUsage(resourceArchiver);
-                    return RETURNCODE_OUTPUT_USAGE;
-                }
-                else
-                {
-                    IList<string> missingParameters = CheckRequiredParameters(parameters, new List<string>() {
-                        "in", "out",
-                    });
-                    if (0 < missingParameters.Count)
-                    {
-                        Console.Error.WriteLine(String.Format(
-                            Resources.ProgramMessage.exception_message_parameter_is_missing,
-                            String.Join(",", missingParameters)));
-                        OutputUsage(resourceArchiver);
-                        return RETURNCODE_ARGUMENT_ERROR;
-                    }
+                    Usage(options);
+                    return 1;
                 }
 
-                resourceArchiver = GetResourceArchiver(parameters);
-                resourceArchiver.SetParameters(parameters);
-
-                resourceArchiver.ResourceArchived += new ResourceArchivedEventHandler(ResourceArchived);
-                resourceArchiver.ResourceArchiveSkipped += new ResourceArchivedEventHandler(ResourceArchiveSkipped);
-
-                string inputDirectory = GetInputDirectory(parameters);
-                string outputFilename = GetOutputFilename(parameters);
-                IList<string> targetFiles = GetTargetFiles(inputDirectory);
-                if (!GetCheckTimestamp(parameters) || CheckTimestamp(targetFiles, outputFilename))
-                {
-                    ArchiveResx(resourceArchiver, inputDirectory, outputFilename, targetFiles);
-                }
-                return RETURNCODE_SUCCESSFUL;
+                Run(inputDirectory, outputDirectory);
+                return 0;
             }
-            catch (ApplicationParameterException e)
+            catch (OptionException e)
             {
-                Console.Error.WriteLine(e.Message);
-                OutputUsage(resourceArchiver);
-                return RETURNCODE_ARGUMENT_ERROR;
+                Logger.Error("OptionException", e);
+                OutputException(e);
+                return 2;
             }
             catch (ApplicationException e)
             {
-                Console.Error.WriteLine(GetExceptionMessage(e));
-                return RETURNCODE_APPLICATION_ERROR;
+                Logger.Error("ApplicationException", e);
+                OutputException(e);
+                return 3;
             }
             catch (Exception e)
             {
-                OutputError(e);
-                return RETURNCODE_UNKNOWN_ERROR;
+                Logger.Error("UnknownException", e);
+                OutputException(e);
+                return 255;
             }
         }
 
-        static string GetInputDirectory(IDictionary<string, string> parameters)
+        static void Run(string inputDirectory, string outputDirectory)
         {
-            return parameters["in"];
-        }
+            foreach (string targetFile in Directory.GetFiles(inputDirectory))
+            {
+                ResourceArchiverManager.ArchiveResx(targetFile, outputDirectory);
+            }
 
-        static string GetOutputFilename(IDictionary<string, string> parameters)
-        {
-            string extension = Path.GetExtension(parameters["out"]);
-            if (extension == String.Empty)
+            foreach (string targetDirectory in Directory.GetDirectories(inputDirectory))
             {
-                return String.Format("{0}.{1}", parameters["out"], RESX_EXTENSION);
-            }
-            else
-            {
-                return parameters["out"];
-            }
-        }
-
-        static bool GetCheckTimestamp(IDictionary<string, string> parameters)
-        {
-            if (parameters.ContainsKey("checkTimestamp"))
-            {
-                return Boolean.Parse(parameters["checkTimestamp"]);
-            }
-            else
-            {
-                return true;
-            }
-        }
-
-        static string GetResourceArchiverName(IDictionary<string, string> parameters)
-        {
-            if (parameters.ContainsKey("extensionResourceArchiver"))
-            {
-                return parameters["extensionResourceArchiver"];
-            }
-            else
-            {
-                return DEFAULT_RESOURCE_ARCHIVER;
-            }
-        }
-
-        static IResourceArchiver GetResourceArchiver(IDictionary<string, string> parameters)
-        {
-            Assembly assembly = null;
-            if (parameters.ContainsKey("extensionDll") && parameters["extensionDll"] != null)
-            {
-                try
+                if (Path.GetFileName(targetDirectory) != DEFAULT_OUTPUT_DIRECTORY)
                 {
-                    assembly = Assembly.LoadFrom(parameters["extensionDll"]);
-                }
-                catch (Exception e)
-                {
-                    throw new ApplicationException(String.Format(
-                        Resources.ProgramMessage.exception_message_invalid_extension_dll,
-                        parameters["extensionDll"]
-                        ), e);
-                }
-            }
-
-            try
-            {
-                Type resourceArchiverType = (assembly != null)
-                    ? assembly.GetType(GetResourceArchiverName(parameters))
-                    : Type.GetType(GetResourceArchiverName(parameters));
-                return (IResourceArchiver) Activator.CreateInstance(resourceArchiverType);
-            }
-            catch (Exception e)
-            {
-                throw new ApplicationException(
-                    Resources.ProgramMessage.exception_message_resource_archiver_initialize_error, e);
-            }
-        }
-
-        static IList<string> GetTargetFiles(string inputDirectory)
-        {
-            IList<string> result = new List<string>();
-
-            Stack<string> targetDirectories = new Stack<string>();
-            targetDirectories.Push(Path.GetFullPath(inputDirectory));
-
-            while (0 < targetDirectories.Count)
-            {
-                string targetDirectory = targetDirectories.Pop();
-
-                foreach (string targetFilename in Directory.GetFiles(targetDirectory))
-                {
-                    result.Add(targetFilename);
-                }
-
-                foreach (string subdirectory in Directory.GetDirectories(targetDirectory))
-                {
-                    targetDirectories.Push(subdirectory);
-                }
-            }
-
-            return result;
-        }
-        
-        static void ArchiveResx(IResourceArchiver resourceArchiver, string inputDirectory, string outputFilename, IList<string> targetFiles)
-        {
-            Stack<string> targetDirectories = new Stack<string>();
-            targetDirectories.Push(Path.GetFullPath(inputDirectory));
-
-            Uri rootDirectory = new Uri(Path.GetFullPath(inputDirectory) + "/");
-            using (ResXResourceWriter writer = new ResXResourceWriter(
-                new FileStream(outputFilename, FileMode.Create)))
-            {
-                foreach (string targetFilename in targetFiles)
-                {
-                    Uri relativeUrl = rootDirectory.MakeRelativeUri(new Uri(targetFilename));
-                    resourceArchiver.AddResource(writer, targetFilename, relativeUrl.ToString());
+                    ResourceArchiverManager.ArchiveResx(targetDirectory, outputDirectory);
                 }
             }
         }
 
-        static bool CheckTimestamp(IList<string> targetFiles, string outputFilename)
+        static string ApplicationName
         {
-            if (!File.Exists(outputFilename))
+            get
             {
-                return true;
+                return Path.GetFileNameWithoutExtension(Assembly.GetExecutingAssembly().Location);
             }
-
-            DateTime destinationFileTimestamp = File.GetLastWriteTime(outputFilename);
-
-            foreach (string targetFilename in targetFiles)
-            {
-                DateTime targetFileTimestamp = File.GetLastWriteTime(targetFilename);
-                if (destinationFileTimestamp < targetFileTimestamp)
-                {
-                    return true;
-                }
-            }
-
-            return false;
         }
 
-        static IDictionary<string, string> GetParameters(
-            string[] arguments)
+        static void Usage(OptionSet options)
         {
-            IDictionary<string, string> result = new Dictionary<string, string>();
+            Console.Error.WriteLine("Usage: {0} [OPTIONS]+", ApplicationName);
+            Console.Error.WriteLine();
 
-            List<string> argsList = new List<string>(arguments);
-            for (int i = argsList.Count - 1; 0 <= i; --i)
-            {
-                MatchCollection mc = Regex.Matches(argsList[i], "^/([a-zA-Z0-9_]+)(:(.+))?$");
-                if (0 < mc.Count)
-                {
-                    Match match = mc[0];
-                    switch (match.Groups.Count)
-                    {
-                        case 2:
-                            result.Add(match.Groups[1].Value, null);
-                            break;
-                        case 4:
-                            result.Add(match.Groups[1].Value, match.Groups[3].Value);
-                            break;
-                    }
-                }
-            }
-
-            return result;
+            Console.Error.WriteLine("Options:");
+            options.WriteOptionDescriptions(Console.Error);
         }
 
-        private static IList<string> CheckRequiredParameters(IDictionary<string, string> parameters, IList<string> requiredParameters)
+        static void OutputException(Exception e)
         {
-            IList<string> missingParameters = new List<string>();
-            foreach (string requiredParameter in requiredParameters)
-            {
-                if (!parameters.ContainsKey(requiredParameter))
-                {
-                    missingParameters.Add(requiredParameter);
-                }
-            }
-            return missingParameters;
-        }
-
-        private static void ResourceArchived(object sender, ResourceArchivedEventArgs e)
-        {
-            Console.WriteLine("{0}: {1} [{2}]", e.ResourceName, e.ResourceFullpath, e.ResourceDescription);
-        }
-
-        private static void ResourceArchiveSkipped(object sender, ResourceArchivedEventArgs e)
-        {
-            Console.Error.WriteLine("Skipped {0}: {1} [{2}]", e.ResourceName, e.ResourceFullpath, e.ResourceDescription);
-        }
-
-        private static string GetExceptionMessage(Exception e)
-        {
-            List<string> result = new List<string>();
-            int count = 0;
-            while (e != null && count <= 10)
-            {
-                ++count;
-                result.Add(e.GetType().FullName + ": " + e.Message + Environment.NewLine + e.StackTrace.ToString());
-                e = e.InnerException;
-            }
-            return String.Join(Environment.NewLine + "Caused by ", result);
+            Console.Error.Write("{0}: ", ApplicationName);
+            Console.Error.WriteLine(e.Message);
+            Console.Error.WriteLine("Try `{0} --help' for more information.", ApplicationName);
         }
     }
 }

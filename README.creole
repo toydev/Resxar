@@ -1,0 +1,175 @@
+= 1. Resxar（Resx Archiver）について
+
+数百、数千のテキストや画像などの各種リソースを [[http://msdn.microsoft.com/ja-jp/library/ekyft91f.aspx|Resx 形式ファイル]]に固めるための開発補助ツールです。
+
+コマンドラインで動きます。コマンド名は **resxar** です。
+
+決められた構成に従って各種リソースを配置することで、コマンドが resx ファイルを出力してくれます。
+
+タイムスタンプチェック機能も持っているので効率的に resx ファイルを作成できます。
+
+
+
+= 2. リソースファイルの配置の仕方
+
+Resxar は２種類のリソースを扱います。
+
+== 2.1. 文字列リソース
+
+１つは文字列リソースが記載されたテキストファイル（*.txt）です。１つのテキストファイルから同名の resx ファイルを生成します。
+
+例えば Resources.txt ファイルがあった場合、Resources.resx というファイルを生成します。
+
+また、文字列リソースの定義にロケールの指定を持つものがあった場合は、同名のロケール別ファイルを生成します。
+
+例えば Resources.txt ファイルの中に ja の文字列リソースの定義が含まれていた場合、その内容は Resources.ja.resx に出力されます。
+
+テキストファイルのフォーマットは以下のサンプルを参考にしてください。
+日本語を含む場合は UTF-8 でファイルを作成してください。
+
+{{{
+# Resources.txt の例
+
+# Message1
+message1=Message1
+message1.ja=メッセージ１
+
+# Message2
+message2=Message2
+message2.ja=メッセージ２
+
+# 複数
+multiline_message1=<<END_OF_LINE
+Including line breaks
+Multi-line message
+END_OF_LINE
+
+multiline_message1.ja=<<END_OF_LINE
+改行を含む
+複数行のメッセージ
+END_OF_LINE
+}}}
+
+ * # で始まる行がコメント。
+ * 文字列リソースは「文字列リソース名=文字列」で定義する。
+ ** ロケールを指定する場合は「文字列リソース名.ロケールID=文字列」で定義する。
+ ** ロケールIDを指定しなかった場合はデフォルトとなる。
+ * 改行を含む複数行のメッセージの場合「文字列リソース名<<終端文字列」で定義を開始し、「終端文字列」までを１つの文字列リソースとする。
+ ** ロケールを指定する場合は「文字列リソース名.ロケール名<<終端文字列」で定義する。
+
+== 2.2. 各種ファイルリソース群
+
+もう１つはディレクトリに格納された各種ファイルリソース群です。例えば画像ファイルなどがこれに当たります。
+
+ディレクトリにファイルリソース群を格納してください。１つのディレクトリから同名の resx ファイルを生成します。
+
+例えば Images ディレクトリがあり、その中に複数の画像ファイルが格納した場合、Images.resx というファイルを生成します。
+
+resx 内のリソース名は以下の命名規則に従って決められます。
+
+{{{
+[拡張子_][入力ルートディレクトリからの相対パス_]ファイル名
+}}}
+ * [] 内の文字は対象文字列が存在する場合のみ付きます。存在しない場合は省略されます。
+ * 「.」およびパス区切り「/\」は「_」で置換されます。
+ * また、先頭が数字になる場合は接頭子として「_」が１文字加えられます。
+
+例えば Images ディレクトリ配下に格納した sub1\sub2\bitmap1.png ファイルのリソース名は png_sub1_sub2_bitmap1 になります。
+
+このルールを基にファイルをディレクトリに配置してください。
+
+また、リソースの種類は、拡張子により以下のルールで決まります。
+
+|= 拡張子|= 形式|
+|.txt|文字列リソース(string)|
+|.png, .bmp, .jpg, .jpeg, .gif, .tif, .tiff|バイト配列（byte[]）で取り込む。ただし、--bitmap オプションを指定した場合は画像リソース(System.Drawing.Bitmap)として取り込む。|
+|その他の拡張子|バイト配列（byte[]）として取り込む。|
+
+
+
+= 3. 使い方
+== 3.1. リリースの入手とインストール
+
+ビルド済みリリースは以下のページから入手してください。
+
+ * [[https://github.com/toydev/Resxar/releases/latest|リリース]]
+
+インストールは zip ファイルの中身をパスの通ったディレクトリに解凍し配置するだけです。
+
+また、アンインストールはファイルを削除するだけです。
+
+== 3.2. resxar コマンドの使い方
+
+以下コマンドラインの入力事例です。
+
+{{{
+resxar --in resourceRootDirectory --out outputDirectory
+}}}
+
+resourceRootDirectory 配下の *.txt もしくはディレクトリから 各種 resx ファイルを作成します。
+
+２回目以降の実行はタイムスタンプ機能が働き、リソースファイルよりも新しいファイルが存在した場合のみ再度リソースファイルを作成します。
+
+詳細は --help オプションを指定して実行してください。
+
+
+
+= 4. リソースファイルの使い方
+
+生成された resx ファイルは、Visual Studio のプロジェクトに通常の resx ファイルと同様に追加してください。
+
+resx ファイルのプロパティで、カスタムツールに ResXFileCodeGenerator（もしくは PublicResXFileCodeGenerator）を設定することでアクセス用のソースコードが生成できます。
+
+生成されたリソースアクセス用のクラスを使ってリソースを取得してください。
+
+以下、リソースへのアクセスの事例です。
+
+{{{
+// 文字列リソースへの参照の例
+System.Console.WriteLine(Resources.txt_message1);
+
+// WPF で画像を扱った例（--bitmap オプションは指定せず画像ファイルを byte[] として扱うこと）
+System.Windows.Media.Imaging.BitmapImage bitmap =
+    new System.Windows.Media.Imaging.BitmapImage();
+bitmap.BeginInit();
+bitmap.StreamSource = new MemoryStream((byte[]) Resource.png_sub1_sub2_bitmap1);
+bitmap.EndInit();
+
+// Bitmap で画像を扱った例（--bitmap オプションは指定すること）
+System.Drawing.Bitmap bitmap = Resource.png_sub1_sub2_bitmap1;
+}}}
+
+ResXFileCodeGenerator カスタムツールを使わず [[http://msdn.microsoft.com/ja-jp/library/system.resources.resourcemanager.aspx|System.Resources.ResourceManager]] クラスを使い情報にアクセスしてももちろん大丈夫です。
+
+
+
+= 5. ビルドイベントでの使い方
+
+ビルド前に実行するコマンドラインに rasxar コマンドを組み込むことで自動コンパイルが可能です。
+
+以下、ビルド前イベントのコマンドラインに設定する内容の意事例です。
+
+{{{
+resxar --in "$(ProjectDir)Resources" --out "$(ProjectDir)Properties"
+}}}
+
+プロジェクト配下 Resources ディレクトリ直下にある *.txt やディレクトリ毎のファイルリソース群から、Properties ディレクトリ直下に resx ファイルを生成します。
+
+リソースファイルの生成はタイムスタンプチェックにより必要な場合のみ行われます。
+
+ただし、ResXFileCodeGenerator カスタムツールによるリソースアクセス用のクラスは自動更新されませんので、新しくリソースを追加した場合などは手動でツールを起動し更新する必要があります。
+
+カスタムツールを手動で起動するには対象の resx ファイルを右クリックし、「カスタム ツールの実行」を選択してください。
+
+
+
+= 6. ライセンス・著作権および免責事項
+
+本ソフトウェアのソースコードライセンスは Microsoft Public License(Ms-PL) です。
+
+ソースコードを改変して使いたい場合はライセンスに従い行ってください。
+
+開発ツールとして単に利用するだけならばライセンス表示は不要です。
+
+このソフトウェアを使用したことによって生じたすべての障害・損害・不具合等に関しては、
+私と私の関係者および私の所属するいかなる団体・組織とも、一切の責任を負いません。各自の責任においてご使用ください。

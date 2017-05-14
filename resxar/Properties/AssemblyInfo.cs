@@ -5,12 +5,12 @@ using System.Runtime.InteropServices;
 // アセンブリに関する一般情報は以下の属性セットをとおして制御されます。
 // アセンブリに関連付けられている情報を変更するには、
 // これらの属性値を変更してください。
-[assembly: AssemblyTitle("Resx Archiver")]
+[assembly: AssemblyTitle("Resxar")]
 [assembly: AssemblyDescription("")]
 [assembly: AssemblyConfiguration("")]
 [assembly: AssemblyCompany("")]
-[assembly: AssemblyProduct("Resx Archiver")]
-[assembly: AssemblyCopyright("Copyright (C) 2014 toydev All Rights Reserved.")]
+[assembly: AssemblyProduct("Resxar")]
+[assembly: AssemblyCopyright("Copyright ©  2016")]
 [assembly: AssemblyTrademark("")]
 [assembly: AssemblyCulture("")]
 
@@ -19,18 +19,18 @@ using System.Runtime.InteropServices;
 // その型の ComVisible 属性を true に設定してください。
 [assembly: ComVisible(false)]
 
-// 次の GUID は、このプロジェクトが COM に公開される場合の、typelib の ID です
-[assembly: Guid("422c6a9f-00e4-4b28-83a5-b28600813bbd")]
+// このプロジェクトが COM に公開される場合、次の GUID が typelib の ID になります
+[assembly: Guid("c9a167c0-74e0-4cda-8394-cd16ed5f1176")]
 
-// アセンブリのバージョン情報は、以下の 4 つの値で構成されています:
+// アセンブリのバージョン情報は次の 4 つの値で構成されています:
 //
-//      Major Version
-//      Minor Version 
-//      Build Number
+//      メジャー バージョン
+//      マイナー バージョン
+//      ビルド番号
 //      Revision
 //
 // すべての値を指定するか、下のように '*' を使ってビルドおよびリビジョン番号を 
 // 既定値にすることができます:
 // [assembly: AssemblyVersion("1.0.*")]
-[assembly: AssemblyVersion("1.0.*")]
-// [assembly: AssemblyFileVersion("1.0.0.0")]
+[assembly: AssemblyVersion("1.0.0.0")]
+[assembly: AssemblyFileVersion("1.0.0.0")]

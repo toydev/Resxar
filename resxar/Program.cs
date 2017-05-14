@@ -56,6 +56,11 @@ namespace Resxar
                     return 1;
                 }
 
+                if (!Directory.Exists(outputDirectory))
+                {
+                    Directory.CreateDirectory(outputDirectory);
+                }
+
                 Run(inputDirectory, outputDirectory);
                 return 0;
             }

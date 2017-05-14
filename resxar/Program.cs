@@ -14,24 +14,28 @@ namespace Resxar
         private static ResourceArchiverManager ResourceArchiverManager { get; set; }
             = new ResourceArchiverManager();
 
+        const string DEFAULT_INPUT_DIRECTORY = ".";
+        const string DEFAULT_OUTPUT_DIRECTORY = "resx_output";
+
         static void Main(string[] args)
         {
             Assembly assembly = Assembly.GetExecutingAssembly();
-            XmlConfigurator.Configure(
-                assembly.GetManifestResourceStream("resxar.Config.log.xml")
-            );
+            using (Stream configStream = assembly.GetManifestResourceStream("Resxar.Config.log.xml"))
+            {
+                XmlConfigurator.Configure(configStream);
+            }
 
             ResourceArchiverManager.Add(new TextResourceArchiver());
             ResourceArchiverManager.Add(new DirectoryResourceArchiver());
 
-            string inputDirectory = ".";
-            string outputDirectory = "resx";
+            string inputDirectory = DEFAULT_INPUT_DIRECTORY;
+            string outputDirectory = DEFAULT_OUTPUT_DIRECTORY;
             bool help = false;
 
             OptionSet options = new OptionSet()
             {
-                { "i|in=", "Resource input directory path. The default is '.'.", v => inputDirectory = v },
-                { "o|out=", "*.resx files output directory path. The default is 'resx'.", v => outputDirectory = v },
+                { "i|in=", string.Format("Resource input directory path. The default is '{0}'.", DEFAULT_INPUT_DIRECTORY), v => inputDirectory = v },
+                { "o|out=", string.Format("*.resx files output directory path. The default is '{0}'.", DEFAULT_OUTPUT_DIRECTORY), v => outputDirectory = v },
                 { "h|help", "Show help and exit.", v => help = v != null },
             };
 
@@ -48,24 +52,14 @@ namespace Resxar
                     return;
                 }
 
-                if (0 < extra.Count
-                    || inputDirectory == null
-                    || outputDirectory == null)
-                {
-                    Usage(options);
-                    return;
-                }
-
                 Run(inputDirectory, outputDirectory);
-            }
-            catch (OptionException)
-            {
-                Usage(options);
             }
             catch (Exception e)
             {
-                Console.Error.Write(e);
-                Usage(options);
+                Console.Write("{0}: ", ApplicationName);
+                Console.WriteLine(e.Message);
+                Console.WriteLine("Try `{0} --help' for more information.", ApplicationName);
+                return;
             }
         }
 
@@ -78,7 +72,10 @@ namespace Resxar
 
             foreach (string targetDirectory in Directory.GetDirectories(inputDirectory))
             {
-                ResourceArchiverManager.ArchiveResx(targetDirectory, outputDirectory);
+                if (targetDirectory != DEFAULT_OUTPUT_DIRECTORY)
+                {
+                    ResourceArchiverManager.ArchiveResx(targetDirectory, outputDirectory);
+                }
             }
         }
 
@@ -93,7 +90,6 @@ namespace Resxar
         static void Usage(OptionSet options)
         {
             Console.WriteLine("Usage: {0} [OPTIONS]+", ApplicationName);
-            Console.WriteLine("Application Description Here.");
             Console.WriteLine();
 
             Console.WriteLine("Options:");

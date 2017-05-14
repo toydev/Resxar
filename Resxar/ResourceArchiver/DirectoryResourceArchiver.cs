@@ -17,12 +17,12 @@ namespace Resxar
         private ILog logger = LogManager.GetLogger(typeof(DirectoryResourceArchiver));
 
         private Encoding Encoding { get; set; } = Encoding.UTF8;
-        private bool UseBitmap { get; set; } = true;
+        private bool UseBitmap { get; set; } = false;
 
         public void AddOptionSet(OptionSet options)
         {
-            options.Add("encoding=", "", v => Encoding = Encoding.GetEncoding(v));
-            options.Add("bitmap=", "", v => UseBitmap = Boolean.Parse(v));
+            options.Add("encoding=", "Text file encoding.", v => Encoding = Encoding.GetEncoding(v));
+            options.Add("bitmap=", "Writes the image as a bitmap.", v => UseBitmap = v != null);
         }
 
         public bool ValidateOptions()

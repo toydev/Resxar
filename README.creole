@@ -1,6 +1,6 @@
 = 1. Resxar（Resx Archiver）について
 
-数百、数千のテキストや画像などの各種リソースを [[Resx 形式ファイル|http://msdn.microsoft.com/ja-jp/library/ekyft91f.aspx]]に固めるための開発補助ツールです。
+数百、数千のテキストや画像などの各種リソースを [[http://msdn.microsoft.com/ja-jp/library/ekyft91f.aspx|Resx 形式ファイル]]に固めるための開発補助ツールです。
 
 コマンドラインで動きます。コマンド名は **resxar** です。
 
@@ -92,7 +92,7 @@ resx 内のリソース名は以下の命名規則に従って決められます
 
 ビルド済みリリースは以下のページから入手してください。
 
- * [[リリース|https://github.com/toydev/Resxar/releases/latest]]
+ * [[https://github.com/toydev/Resxar/releases/latest|リリース|]]
 
 インストールは zip ファイルの中身をパスの通ったディレクトリに解凍し配置するだけです。
 
@@ -116,13 +116,13 @@ resourceRootDirectory 配下の *.txt もしくはディレクトリから 各�
 
 = 4. リソースファイルの使い方
 
-Visual Studio のプロジェクトに通常の Resx ファイルと同様に追加してください。
+生成された resx ファイルは、Visual Studio のプロジェクトに通常の resx ファイルと同様に追加してください。
 
 resx ファイルのプロパティで、カスタムツールに ResXFileCodeGenerator（もしくは PublicResXFileCodeGenerator）を設定することでアクセス用のソースコードが生成できます。
 
 生成されたリソースアクセス用のクラスを使ってリソースを取得してください。
 
-以下、リソースアクセスの事例です。
+以下、リソースへのアクセスの事例です。
 
 {{{
 // 文字列リソースへの参照の例
@@ -139,7 +139,7 @@ bitmap.EndInit();
 System.Drawing.Bitmap bitmap = Resource.png_sub1_sub2_bitmap1;
 }}}
 
-ResXFileCodeGenerator カスタムツールを使わず [[System.Resources.ResourceManager|http://msdn.microsoft.com/ja-jp/library/system.resources.resourcemanager.aspx]] クラスを使い情報にアクセスしてももちろん大丈夫です。
+ResXFileCodeGenerator カスタムツールを使わず [[http://msdn.microsoft.com/ja-jp/library/system.resources.resourcemanager.aspx|System.Resources.ResourceManager|]] クラスを使い情報にアクセスしてももちろん大丈夫です。
 
 
 

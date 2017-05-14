@@ -20,7 +20,7 @@ namespace Resxar
         const string DEFAULT_INPUT_DIRECTORY = ".";
         const string DEFAULT_OUTPUT_DIRECTORY = "resx_output";
 
-        static void Main(string[] args)
+        static int Main(string[] args)
         {
             Assembly assembly = Assembly.GetExecutingAssembly();
             using (Stream configStream = assembly.GetManifestResourceStream("Resxar.Config.log.xml"))
@@ -53,18 +53,29 @@ namespace Resxar
                 if (help)
                 {
                     Usage(options);
-                    return;
+                    return 1;
                 }
 
                 Run(inputDirectory, outputDirectory);
+                return 0;
+            }
+            catch (OptionException e)
+            {
+                Logger.Error("OptionException", e);
+                OutputException(e);
+                return 2;
+            }
+            catch (ApplicationException e)
+            {
+                Logger.Error("ApplicationException", e);
+                OutputException(e);
+                return 3;
             }
             catch (Exception e)
             {
-                Logger.Error("Application Error", e);
-                Console.Write("{0}: ", ApplicationName);
-                Console.WriteLine(e.Message);
-                Console.WriteLine("Try `{0} --help' for more information.", ApplicationName);
-                return;
+                Logger.Error("UnknownException", e);
+                OutputException(e);
+                return 255;
             }
         }
 
@@ -94,11 +105,18 @@ namespace Resxar
 
         static void Usage(OptionSet options)
         {
-            Console.WriteLine("Usage: {0} [OPTIONS]+", ApplicationName);
-            Console.WriteLine();
+            Console.Error.WriteLine("Usage: {0} [OPTIONS]+", ApplicationName);
+            Console.Error.WriteLine();
 
-            Console.WriteLine("Options:");
-            options.WriteOptionDescriptions(Console.Out);
+            Console.Error.WriteLine("Options:");
+            options.WriteOptionDescriptions(Console.Error);
+        }
+
+        static void OutputException(Exception e)
+        {
+            Console.Error.Write("{0}: ", ApplicationName);
+            Console.Error.WriteLine(e.Message);
+            Console.Error.WriteLine("Try `{0} --help' for more information.", ApplicationName);
         }
     }
 }

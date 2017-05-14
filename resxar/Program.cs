@@ -20,7 +20,7 @@ namespace Resxar
         const string DEFAULT_INPUT_DIRECTORY = ".";
         const string DEFAULT_OUTPUT_DIRECTORY = "resx_output";
 
-        static int Main(string[] args)
+        public static int Main(string[] args)
         {
             Assembly assembly = Assembly.GetExecutingAssembly();
             using (Stream configStream = assembly.GetManifestResourceStream("Resxar.Config.log.xml"))
